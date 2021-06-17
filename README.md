@@ -136,7 +136,7 @@ spec:
   ports:
   - name: service-b-http-port
     protocol: TCP
-    port: 8080
+    port: 80
     targetPort: 80
 ```
 
@@ -145,7 +145,7 @@ spec:
 The HTTP client service `service-a` will be implemented will the following Bash script using `curl`
 
 ```text
-while curl http://service-b.scenario-01-ns:8080/uuid; do sleep 1.0; done;
+while curl http://service-b.scenario-01-ns/uuid; do sleep 1.0; done;
 ```
 
 The HTTP client service `service-a` will be deployed within the Kubernetes cluster with a `service-a-deploy` Deployment running one pod containing one container `service-a-co`, using  the `tutum/curl` image and the Bash script above, with the `service-a-sa` identity.
@@ -176,7 +176,7 @@ spec:
       - name: service-a-co
         image: curlimages/curl
         command: ["/bin/sh"]
-        args: ["-c", "while curl http://httpbin.touchd-demo:8080/uuid; do sleep 1.0; done;"]
+        args: ["-c", "while curl http://service-b.scenario-01-ns/uuid; do sleep 1.0; done;"]
 ```
 
 </details>
