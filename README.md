@@ -4,27 +4,39 @@
 
 ### Create a Kubernetes Cluster with Azure Kubernetes Service (AKS)
 
-You can easily create a Kubernetes cluster on Azure with the `az` CLI by typing the following commands:
+You can easily create a Kubernetes cluster on Azure with the `az` CLI just by typing a few commands.
+
+Let's first capture within environment variables the Azure _resource group_ name and the Kubernetes _cluster_ name so you can have a custom installation while just copy-pasting the commands below.
 
 ```text
-$ az group create --name pk-group-01 --location westeurope
+$ group="my-resource-group"
+$ echo $group
+my-resource-group
+$ cluster="my-cluster"
+$ echo $cluster
+my-cluster
+```
+
+```text
+$ az group create --name $group --location westeurope
 ...
 
 $ az aks create \
-  --resource-group pk-group-01 \
-  --name pk-cluster-01 \
+  --resource-group $group \
+  --name $cluster \
   --enable-managed-identity \
   --generate-ssh-keys
 ...
 
 $ az aks get-credentials \
-  --resource-group pk-group-01 \
-  --name pk-cluster-01
-Merged "pk-cluster-01" as current context in /home/patrice_krakow/.kube/config
+  --resource-group $group \
+  --name $cluster
+Merged "my-cluster" as current context in /home/user/.kube/config
 
 $ kubectl version --short
-Client Version: v1.20.4
-Server Version: v1.18.14
+Client Version: v1.21.1
+Server Version: v1.19.11
+WARNING: version difference between client (1.21) and server (1.19) exceeds the supported minor version skew of +/-1
 ```
 
 ## Scenario 1
