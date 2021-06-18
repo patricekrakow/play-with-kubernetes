@@ -6,20 +6,20 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: scenario-01-ns
   name: service-b-sa
+  namespace: scenario-01-ns
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: scenario-01-ns
   name: service-a-sa
+  namespace: scenario-01-ns
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: scenario-01-ns
   name: service-b-deploy
+  namespace: scenario-01-ns
 spec:
   replicas: 1
   selector:
@@ -42,8 +42,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: scenario-01-ns
   name: service-b
+  namespace: scenario-01-ns
 spec:
   selector:
     app: service-b
@@ -57,8 +57,8 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: scenario-01-ns
   name: service-a-deploy
+  namespace: scenario-01-ns
 spec:
   replicas: 1
   selector:
