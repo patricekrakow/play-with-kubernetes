@@ -215,7 +215,7 @@ service-b-deploy-689459595d-42vgz   1/1     Running   0          53s
 ```
 
 ```text
-$ k logs service-a-deploy-5c6c5df758-4v2s6 -n scenario-01-ns --tail 20
+$ kubectl logs -n scenario-01-ns --tail 20 service-a-deploy-5c6c5df758-4v2s6
   "uuid": "1852095d-d11b-4b34-b75b-03221ac3b48c"
 }
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
