@@ -1,19 +1,21 @@
+# play-with-kubernetes/scenario-01/service-a.yaml
+
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: service-a-ns
+  name: s01-service-a-ns
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: service-a-sa
-  namespace: service-a-ns
+  namespace: s01-service-a-ns
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: service-a-deploy
-  namespace: service-a-ns
+  namespace: s01-service-a-ns
 spec:
   replicas: 1
   selector:

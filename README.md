@@ -220,13 +220,13 @@ You can install all the components of the scenario 1 using the `service-b.yaml` 
 $ cd scenario-01/
 
 $ kubectl apply -f service-b.yaml
-namespace/service-b-ns created
+namespace/s01-service-b-ns created
 serviceaccount/service-b-sa created
 deployment.apps/service-b-deploy created
 service/service-b created
 
 $ kubectl apply -f service-a.yaml
-namespace/service-a-ns created
+namespace/s01-service-a-ns created
 serviceaccount/service-a-sa created
 deployment.apps/service-a-deploy created
 ```
@@ -235,31 +235,31 @@ deployment.apps/service-a-deploy created
 $ kubectl get pods -A
 NAME                                READY   STATUS    RESTARTS   AGE
 ...
-service-a-ns     service-a-deploy-d6777698-nxthc            1/1     Running   0          2m19s
-service-b-ns     service-b-deploy-689459595d-w9rn9          1/1     Running   0          3m9s
+s01-service-a-ns     service-a-deploy-d6777698-7kg4j            1/1     Running   0          21s
+s01-service-b-ns     service-b-deploy-689459595d-cz8mp          1/1     Running   0          51s
 ...
 ```
 
 ```text
-$ kubectl logs -n scenario-01-ns --tail 20 service-a-deploy-5c6c5df758-4v2s6
+$ kubectl logs -n s01-service-a-ns --tail 20 service-a-deploy-5c6c5df758-4v2s6
 }
-100    53  100    53    0     0  11255      0 --:--:-- --:--:-- --:--:-- 13250
+100    53  100    53    0     0  10329      0 --:--:-- --:--:-- --:--:-- 10600
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    53  100    53    0     0  10245      0 --:--:-- --:--:-- --:--:-- 10600
+{
+  "uuid": "3d56ddf1-411c-4050-a803-c2380c8b5d93"
+}
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 {
-  "uuid": "0a87d0a9-d878-491b-bbdb-fe520b612add"
+  "uuid": "78cae782-2ceb-489c-8373-8cb38aff1bd1"
 }
-100    53  100    53    0     0  12257      0 --:--:-- --:--:-- --:--:-- 13250
+100    53  100    53    0     0  11039      0 --:--:-- --:--:-- --:--:-- 13250
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 {
-  "uuid": "09cbd036-bfa9-4d53-85e3-b135e949f41c"
+  "uuid": "8e23020d-6765-400a-874e-d7f8b3574c0d"
 }
-100    53  100    53    0     0   9069      0 --:--:-- --:--:-- --:--:-- 10600
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-{
-  "uuid": "1dc727cc-d1df-4dd2-9b34-6065b4230b71"
-}
-100    53  100    53    0     0  11240      0 --:--:-- --:--:-- --:--:-- 13250
+100    53  100    53    0     0  10998      0 --:--:-- --:--:-- --:--:-- 13250
 ```
