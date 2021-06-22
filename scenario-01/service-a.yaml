@@ -33,4 +33,4 @@ spec:
       - name: service-a-co
         image: curlimages/curl
         command: ["/bin/sh"]
-        args: ["-c", "while curl http://service-b.service-b-ns/uuid; do sleep 1.0; done;"]
+        args: ["-c", "while curl http://service-b.s01-service-b-ns/uuid; do sleep 1.0; done;"]
