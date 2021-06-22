@@ -1,25 +1,19 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: scenario-01-ns
+  name: service-b-ns
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: service-b-sa
-  namespace: scenario-01-ns
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: service-a-sa
-  namespace: scenario-01-ns
+  namespace: service-b-ns
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: service-b-deploy
-  namespace: scenario-01-ns
+  namespace: service-b-ns
 spec:
   replicas: 1
   selector:
@@ -43,7 +37,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: service-b
-  namespace: scenario-01-ns
+  namespace: service-b-ns
 spec:
   selector:
     app: service-b
@@ -53,27 +47,3 @@ spec:
     protocol: TCP
     port: 80
     targetPort: 80
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: service-a-deploy
-  namespace: scenario-01-ns
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: service-a
-      version: 0.0.1
-  template:
-    metadata:
-      labels:
-        app: service-a
-        version: 0.0.1
-    spec:
-      serviceAccountName: service-a-sa
-      containers:
-      - name: service-a-co
-        image: curlimages/curl
-        command: ["/bin/sh"]
-        args: ["-c", "while curl http://service-b.scenario-01-ns/uuid; do sleep 1.0; done;"]

@@ -53,7 +53,9 @@ We will call `service-b` the HTTP server service implementing the `GET /uuid` AP
 
 We will call `service-a` the HTTP client service.
 
-We will contain this scenario within a dedicated `scenario-01-ns` Namespace.
+#### Configuration of the `service-b`
+
+The configuration of the `service-b` will be contained within a dedicated `service-b-ns` Namespace.
 
 <details>
 <summary>YAML</summary>
@@ -62,7 +64,7 @@ We will contain this scenario within a dedicated `scenario-01-ns` Namespace.
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: scenario-01-ns
+  name: service-b-ns
 ```
 
 </details>
@@ -76,23 +78,8 @@ The HTTP server service `service-b` will use `service-b-sa` ServiceAccount as id
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: scenario-01-ns
   name: service-b-sa
-```
-
-</details>
-
-The HTTP client service `service-a` will use `service-a-sa` ServiceAccount as identity
-
-<details>
-<summary>YAML</summary>
-
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  namespace: scenario-01-ns
-  name: service-a-sa
+  namespace: service-b-ns
 ```
 
 </details>
@@ -106,8 +93,8 @@ The HTTP server service `service-b` will be deployed within the Kubernetes clust
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: scenario-01-ns
   name: service-b-deploy
+  namespace: service-b-ns
 spec:
   replicas: 1
   selector:
@@ -130,7 +117,7 @@ spec:
 
 </details>
 
-The HTTP server service `service-b` will be exposed within the Kubernetes cluster with the hostname `service-b.scenario-01-ns` on port `8080`.
+The HTTP server service `service-b` will be exposed within the Kubernetes cluster with the hostname `service-b.service-b-ns` on port `80`.
 
 <details>
 <summary>YAML</summary>
@@ -139,8 +126,8 @@ The HTTP server service `service-b` will be exposed within the Kubernetes cluste
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: scenario-01-ns
   name: service-b
+  namespace: service-b-ns
 spec:
   selector:
     app: service-b
@@ -154,10 +141,42 @@ spec:
 
 </details>
 
+#### Configuration of the `service-a`
+
+The configuration of the `service-a` will contain within a dedicated `service-a-ns` Namespace.
+
+<details>
+<summary>YAML</summary>
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: service-a-ns
+```
+
+</details>
+
+
+The HTTP client service `service-a` will use `service-a-sa` ServiceAccount as identity
+
+<details>
+<summary>YAML</summary>
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: service-a-sa
+  namespace: service-a-ns
+```
+
+</details>
+
 The HTTP client service `service-a` will be implemented will the following Bash script using `curl`
 
 ```text
-while curl http://service-b.scenario-01-ns/uuid; do sleep 1.0; done;
+while curl http://service-b.service-b-ns/uuid; do sleep 1.0; done;
 ```
 
 The HTTP client service `service-a` will be deployed within the Kubernetes cluster with a `service-a-deploy` Deployment running one pod containing one container `service-a-co`, using  the `tutum/curl` image and the Bash script above, with the `service-a-sa` identity.
@@ -169,8 +188,8 @@ The HTTP client service `service-a` will be deployed within the Kubernetes clust
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: scenario-01-ns
   name: service-a-deploy
+  namespace: service-a-ns
 spec:
   replicas: 1
   selector:
@@ -188,52 +207,59 @@ spec:
       - name: service-a-co
         image: curlimages/curl
         command: ["/bin/sh"]
-        args: ["-c", "while curl http://service-b.scenario-01-ns/uuid; do sleep 1.0; done;"]
+        args: ["-c", "while curl http://service-b.service-b-ns/uuid; do sleep 1.0; done;"]
 ```
 
 </details>
 
 ### Running Scenario 1
 
-You can install all the components of the scenario 1 using the `scenario-01.yaml` file using the following command:
+You can install all the components of the scenario 1 using the `service-b.yaml` and `service-a.yaml` files using the following commands:
 
 ```text
-$ kubectl apply -f scenario-01.yaml
-namespace/scenario-01-ns created
+$ cd scenario-01/
+
+$ kubectl apply -f service-b.yaml
+namespace/service-b-ns created
 serviceaccount/service-b-sa created
-serviceaccount/service-a-sa created
 deployment.apps/service-b-deploy created
 service/service-b created
+
+$ kubectl apply -f service-a.yaml
+namespace/service-a-ns created
+serviceaccount/service-a-sa created
 deployment.apps/service-a-deploy created
 ```
 
 ```text
-$ kubectl get pods -n scenario-01-ns
+$ kubectl get pods -A
 NAME                                READY   STATUS    RESTARTS   AGE
-service-a-deploy-5c6c5df758-4v2s6   1/1     Running   0          53s
-service-b-deploy-689459595d-42vgz   1/1     Running   0          53s
+...
+service-a-ns     service-a-deploy-d6777698-nxthc            1/1     Running   0          2m19s
+service-b-ns     service-b-deploy-689459595d-w9rn9          1/1     Running   0          3m9s
+...
 ```
 
 ```text
 $ kubectl logs -n scenario-01-ns --tail 20 service-a-deploy-5c6c5df758-4v2s6
-  "uuid": "1852095d-d11b-4b34-b75b-03221ac3b48c"
 }
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100    53  100    53    0     0   8277      0 --:--:-- --:--:-- --:--:--  8833
-{
-  "uuid": "b274147e-f9e5-4a0a-8b17-449236869197"
-}
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100    53  100    53    0     0   7991      0 --:--:-- --:--:-- --:--:--  8833
-{
-  "uuid": "f1ab5bd8-1359-4ebc-ab17-3be1494c1c67"
-}
+100    53  100    53    0     0  11255      0 --:--:-- --:--:-- --:--:-- 13250
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 {
-  "uuid": "af910b32-26ca-43d1-b95d-2ac7c940932c"
+  "uuid": "0a87d0a9-d878-491b-bbdb-fe520b612add"
 }
-100    53  100    53    0     0   7843      0 --:--:-- --:--:-- --:--:--  8833
+100    53  100    53    0     0  12257      0 --:--:-- --:--:-- --:--:-- 13250
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+{
+  "uuid": "09cbd036-bfa9-4d53-85e3-b135e949f41c"
+}
+100    53  100    53    0     0   9069      0 --:--:-- --:--:-- --:--:-- 10600
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+{
+  "uuid": "1dc727cc-d1df-4dd2-9b34-6065b4230b71"
+}
+100    53  100    53    0     0  11240      0 --:--:-- --:--:-- --:--:-- 13250
 ```
