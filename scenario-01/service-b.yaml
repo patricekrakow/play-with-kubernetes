@@ -1,25 +1,21 @@
+# play-with-kubernetes/scenario-01/service-b.yaml
+
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: scenario-01-ns
+  name: s01-service-b-ns
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: scenario-01-ns
   name: service-b-sa
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  namespace: scenario-01-ns
-  name: service-a-sa
+  namespace: s01-service-b-ns
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: scenario-01-ns
   name: service-b-deploy
+  namespace: s01-service-b-ns
 spec:
   replicas: 1
   selector:
@@ -42,8 +38,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: scenario-01-ns
   name: service-b
+  namespace: s01-service-b-ns
 spec:
   selector:
     app: service-b
@@ -53,27 +49,3 @@ spec:
     protocol: TCP
     port: 80
     targetPort: 80
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  namespace: scenario-01-ns
-  name: service-a-deploy
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: service-a
-      version: 0.0.1
-  template:
-    metadata:
-      labels:
-        app: service-a
-        version: 0.0.1
-    spec:
-      serviceAccountName: service-a-sa
-      containers:
-      - name: service-a-co
-        image: curlimages/curl
-        command: ["/bin/sh"]
-        args: ["-c", "while curl http://service-b.scenario-01-ns/uuid; do sleep 1.0; done;"]
