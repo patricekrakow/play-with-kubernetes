@@ -9,28 +9,25 @@ You can easily create a Kubernetes cluster on Azure with the `az` CLI just by ty
 Let's first capture within environment variables the Azure _resource group_ name and the Kubernetes _cluster_ name so you can have a custom installation while just copy-pasting the commands below.
 
 ```text
-$ group="my-resource-group"
-$ echo $group
+$ GROUP="my-resource-group"
+$ echo $GROUP
 my-resource-group
-$ cluster="my-cluster"
-$ echo $cluster
-my-cluster
-```
-
-```text
-$ az group create --name $group --location westeurope
+$ az group create --name $GROUP --location westeurope
 ...
 
+$ CLUSTER="my-cluster"
+$ echo $CLUSTER
+my-cluster
 $ az aks create \
-  --resource-group $group \
-  --name $cluster \
+  --resource-group $GROUP \
+  --name $CLUSTER \
   --enable-managed-identity \
   --generate-ssh-keys
 ...
 
 $ az aks get-credentials \
-  --resource-group $group \
-  --name $cluster
+  --resource-group $GROUP \
+  --name $CLUSTER
 Merged "my-cluster" as current context in /home/user/.kube/config
 
 $ kubectl version --short
@@ -53,9 +50,13 @@ We will call `service-b` the HTTP server service implementing the `GET /uuid` AP
 
 We will call `service-a` the HTTP client service.
 
+![Diagram 1](play-with-kubernetes.scenario-01.jpg)
+
+_Fig. 1: Scenario 1_
+
 #### Configuration of the `service-b`
 
-The configuration of the `service-b` will be contained within a dedicated `service-b-ns` Namespace.
+The configuration of the `service-b` will be contained within a dedicated `s01-service-b-ns` Namespace. You can noticed that we prefix the namespace `s01-` which refers to "scenario 1". We did that to run different scenarios at the same time on the same cluster, without having interferences between them.
 
 <details>
 <summary>YAML</summary>
@@ -64,7 +65,7 @@ The configuration of the `service-b` will be contained within a dedicated `servi
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: service-b-ns
+  name: s01-service-b-ns
 ```
 
 </details>
@@ -79,7 +80,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: service-b-sa
-  namespace: service-b-ns
+  namespace: s01-service-b-ns
 ```
 
 </details>
@@ -94,7 +95,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: service-b-deploy
-  namespace: service-b-ns
+  namespace: s01-service-b-ns
 spec:
   replicas: 1
   selector:
@@ -117,7 +118,7 @@ spec:
 
 </details>
 
-The HTTP server service `service-b` will be exposed within the Kubernetes cluster with the hostname `service-b.service-b-ns` on port `80`.
+The HTTP server service `service-b` will be exposed within the Kubernetes cluster with the hostname `service-b.s01-service-b-ns` on port `80`.
 
 <details>
 <summary>YAML</summary>
@@ -127,7 +128,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: service-b
-  namespace: service-b-ns
+  namespace: s01-service-b-ns
 spec:
   selector:
     app: service-b
@@ -143,7 +144,7 @@ spec:
 
 #### Configuration of the `service-a`
 
-The configuration of the `service-a` will contain within a dedicated `service-a-ns` Namespace.
+The configuration of the `service-a` will contain within a dedicated `s01-service-a-ns` Namespace.
 
 <details>
 <summary>YAML</summary>
@@ -152,7 +153,7 @@ The configuration of the `service-a` will contain within a dedicated `service-a-
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: service-a-ns
+  name: s01-service-a-ns
 ```
 
 </details>
@@ -168,7 +169,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: service-a-sa
-  namespace: service-a-ns
+  namespace: s01-service-a-ns
 ```
 
 </details>
@@ -176,7 +177,7 @@ metadata:
 The HTTP client service `service-a` will be implemented will the following Bash script using `curl`
 
 ```text
-while curl http://service-b.service-b-ns/uuid; do sleep 1.0; done;
+while curl http://service-b.s01-service-b-ns/uuid; do sleep 1.0; done;
 ```
 
 The HTTP client service `service-a` will be deployed within the Kubernetes cluster with a `service-a-deploy` Deployment running one pod containing one container `service-a-co`, using  the `tutum/curl` image and the Bash script above, with the `service-a-sa` identity.
@@ -189,7 +190,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: service-a-deploy
-  namespace: service-a-ns
+  namespace: s01-service-a-ns
 spec:
   replicas: 1
   selector:
@@ -207,7 +208,7 @@ spec:
       - name: service-a-co
         image: curlimages/curl
         command: ["/bin/sh"]
-        args: ["-c", "while curl http://service-b.service-b-ns/uuid; do sleep 1.0; done;"]
+        args: ["-c", "while curl http://service-b.s01-service-b-ns/uuid; do sleep 1.0; done;"]
 ```
 
 </details>
