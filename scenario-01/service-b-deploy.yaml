@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b-deploy
+  namespace: s01-service-b-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-b
+      version: 0.0.1
+  template:
+    metadata:
+      labels:
+        app: service-b
+        version: 0.0.1
+    spec:
+      serviceAccountName: service-b-sa
+      containers:
+      - name: service-b-co
+        image: kennethreitz/httpbin
+        ports:
+        - containerPort: 80
