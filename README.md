@@ -2,6 +2,74 @@
 
 As usual, let's go to <https://killercoda.com/playgrounds/scenario/kubernetes> to get a Kubernetes cluster (for 60 minutes).
 
+## Simplest Kubernetes Demonstration
+
+Let's create the following two _pods_:
+
+```text
+kubectl run server-pod --image nginx
+```
+
+```text
+kubectl run client-pod --image nginx
+```
+
+Run the following command (multiple times if needed):
+
+```text
+kubectl get pods
+```
+
+to be sure that the two _pods_ have been created and are running.
+
+Then, using the following commannd:
+
+```text
+kubectl describe pod server-pod | grep IP
+```
+
+you can get the IP address of the running container within the `server-pod`.
+
+Finally, you can get a shell from the running container within the `client-pod`:
+
+```text
+kubectl exec --stdin --tty client-pod -- /bin/bash
+```
+
+and, from that shell, `curl` the NGINX server of the running container within the `server-pod`:
+
+```text
+curl <paste IP address>
+```
+
+If everything goes well, you should get a response like the following:
+
+```text
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+```
+
 ## Scenario 1
 
 ### Description of the Scenario 1
